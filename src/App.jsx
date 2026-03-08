@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import myImg from './assets/my-img-2.jpg';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const NAV = ["Home","About","Skills","Projects","Contact"];
@@ -556,7 +557,7 @@ export default function Portfolio() {
                   }}>
                     {/* Profile Image */}
                     <img 
-                      src="/assets/my-img-2.jpg" 
+                      src={myImg} 
                       alt="Jaymin Chauhan" 
                       style={{
                         width: "100%",
