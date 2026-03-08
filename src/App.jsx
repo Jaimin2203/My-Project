@@ -14,7 +14,8 @@ const SKILLS = [
   { name:"Sass/SCSS",   pct:85, color:"#f472b6" },
   { name:"jQuery",      pct:80, color:"#38bdf8" },
   { name:"Git/GitHub",  pct:88, color:"#f97316" },
-  { name:"Responsive",  pct:95, color:"#00d4ff" },
+  { name:"Responsive Design",  pct:95, color:"#00d4ff" },
+  { name:"MongoDB", pct:90, color:"#a5b4fc" },
 ];
 
 const PROJECTS = [
@@ -22,7 +23,7 @@ const PROJECTS = [
   { title:"GroupLandmark Admin",    desc:"Full admin dashboard for managing content, users & business data.",           tech:["Angular.js","Bootstrap","REST API"],  color:"#a78bfa", emoji:"⚙️" },
   { title:"GroupLandmark LIS Plus", desc:"Laboratory Information System with complex data workflows in Laravel PHP.",   tech:["Laravel","PHP","MySQL","Bootstrap"],  color:"#fb923c", emoji:"🔬" },
   { title:"Cropsolagro",            desc:"Agriculture platform with crop solutions, product listings & farmer info.",   tech:["HTML","PHP","CSS","jQuery"],          color:"#4ade80", emoji:"🌾" },
-  { title:"Floson",                 desc:"Business management app with workflow automation & reporting dashboards.",     tech:["Angular.js","Bootstrap","Node.js"],   color:"#f87171", emoji:"🌊" },
+  { title:"Floson",                 desc:"Business management app with workflow automation & reporting dashboards.",     tech:["Angular.js","Bootstrap","REST API"],   color:"#f87171", emoji:"🌊" },
   { title:"Well-Service",           desc:"Service management portal with scheduling, tracking & client management.",    tech:["Angular.js","Bootstrap","REST API"],  color:"#c084fc", emoji:"🛠️" },
   { title:"Sportomic Website",      desc:"High-performance sports platform with Next.js SSR & SEO optimization.",       tech:["Next.js","React","Sass","Bootstrap"], color:"#22d3ee", emoji:"🏆" },
   { title:"Sportomic Vendor Panel", desc:"Vendor panel for sports facility owners to manage bookings & revenue.",       tech:["React.js","Redux","Bootstrap"],       color:"#fb923c", emoji:"🏪" },
@@ -91,14 +92,29 @@ function MeshBg() {
 // ─── SKILL BAR ────────────────────────────────────────────────────────────────
 function SkillBar({ name, pct, color, delay }) {
   const [ref, v] = useInView(0.05);
+  const [hov, setHov] = useState(false);
   return (
-    <div ref={ref} className="mb-3" style={{ opacity: v ? 1 : 0, transform: v ? "translateY(0)" : "translateY(16px)", transition: `all 0.5s ease ${delay}s` }}>
-      <div className="d-flex justify-content-between mb-1">
-        <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 13, color: "#cbd5e1" }}>{name}</span>
-        <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 12, color, fontWeight: 700 }}>{pct}%</span>
-      </div>
-      <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 99, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: v ? `${pct}%` : "0%", background: `linear-gradient(90deg,${color}88,${color})`, borderRadius: 99, transition: `width 1.1s cubic-bezier(.4,0,.2,1) ${delay + 0.1}s`, boxShadow: `0 0 10px ${color}66` }} />
+    <div ref={ref} style={{ opacity: v ? 1 : 0, transform: v ? "translateY(0)" : "translateY(16px)", transition: `all 0.5s ease ${delay}s` }}>
+      <div 
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          padding: "18px 26px",
+          borderRadius: 14,
+          background: hov ? `${color}12` : "rgba(255,255,255,0.04)",
+          border: hov ? `1.5px solid ${color}44` : `1.5px solid rgba(255,255,255,0.12)`,
+          fontFamily: "'DM Mono',monospace",
+          fontSize: 14,
+          fontWeight: 600,
+          color: hov ? color : "#e2e8f0",
+          textAlign: "center",
+          cursor: "pointer",
+          transition: `all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)`,
+          backdropFilter: "blur(8px)",
+          transform: hov ? "translateY(-6px) scale(1.05)" : "translateY(0) scale(1)",
+          boxShadow: hov ? `0 12px 28px ${color}22` : "none",
+        }}>
+        {name}
       </div>
     </div>
   );
@@ -108,24 +124,53 @@ function SkillBar({ name, pct, color, delay }) {
 function ProjectCard({ p, i }) {
   const [ref, v] = useInView(0.04);
   const [hov, setHov] = useState(false);
+  const [tilt, setTilt] = useState({x:0, y:0});
   return (
-    <div ref={ref} className="h-100" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+    <div ref={ref} className={`h-100 project-card ${v ? (i % 2 === 0 ? 'fade-in-up' : 'fade-in-left') : ''}`} 
+      onMouseEnter={() => setHov(true)} 
+      onMouseLeave={() => { setHov(false); setTilt({x:0,y:0}); }}
+      onMouseMove={(e) => { 
+        const rect = e.currentTarget.getBoundingClientRect(); 
+        const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20; 
+        const y = ((e.clientY - rect.top) / rect.height - 0.5) * 20; 
+        setTilt({x, y}); 
+      }}
       style={{
-        background: hov ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${hov ? p.color + "55" : "rgba(255,255,255,0.08)"}`,
-        borderRadius: 18, padding: "26px 22px",
-        opacity: v ? 1 : 0, transform: v ? "translateY(0)" : "translateY(28px)",
-        transition: `opacity 0.55s ease ${i * 0.07}s, transform 0.55s ease ${i * 0.07}s, background 0.3s, border 0.3s, box-shadow 0.3s`,
-        boxShadow: hov ? `0 20px 50px ${p.color}18` : "none",
-        backdropFilter: "blur(16px)", cursor: "default",
-        display: "flex", flexDirection: "column",
+        background: hov ? `${p.color}08` : "rgba(255,255,255,0.03)",
+        border: `1.5px solid ${hov ? p.color + "44" : "rgba(255,255,255,0.08)"}`,
+        borderRadius: 20, padding: "28px 24px",
+        transition: `background 0.35s ease, border 0.35s ease, box-shadow 0.35s ease`,
+        boxShadow: hov ? `0 20px 60px ${p.color}24, inset 0 1px 0 ${p.color}12` : "0 4px 12px rgba(0,0,0,0.2)",
+        backdropFilter: "blur(16px)", cursor: "pointer",
+        display: "flex", flexDirection: "column", position: "relative", overflow: "hidden",
+        transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg) ${hov ? 'translateY(-8px) scale(1.02)' : ''}`,
+        transformStyle: "preserve-3d",
+        transition: "transform 0.3s ease, background 0.35s ease, border 0.35s ease, box-shadow 0.35s ease",
+        animationDelay: `${i * 0.15}s`,
       }}>
-      <div style={{ position: "absolute", top: -30, right: -30, width: 90, height: 90, borderRadius: "50%", background: p.color, filter: "blur(40px)", opacity: hov ? 0.12 : 0, transition: "opacity 0.4s", pointerEvents: "none" }} />
-      <div style={{ fontSize: 28, marginBottom: 12 }}>{p.emoji}</div>
-      <h6 style={{ fontFamily: "'Clash Display',sans-serif", fontWeight: 600, color: "#f1f5f9", marginBottom: 8, fontSize: 16 }}>{p.title}</h6>
-      <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.75, flexGrow: 1, marginBottom: 16 }}>{p.desc}</p>
-      <div className="d-flex flex-wrap gap-1">
-        {p.tech.map(t => <span key={t} style={{ padding: "3px 10px", borderRadius: 20, background: `${p.color}12`, color: p.color, fontSize: 11, fontFamily: "'DM Mono',monospace", border: `1px solid ${p.color}28` }}>{t}</span>)}
+      {/* Glow effect */}
+      <div style={{ position: "absolute", top: -40, right: -40, width: 120, height: 120, borderRadius: "50%", background: p.color, filter: "blur(50px)", opacity: hov ? 0.15 : 0, transition: "opacity 0.5s ease", pointerEvents: "none", animation: hov ? "pulse 1s infinite" : "none" }} />
+      
+      {/* Emoji */}
+      <div style={{ fontSize: 32, marginBottom: 16, transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)", animation: hov ? "emojiHover 0.6s ease" : "none" }}>{p.emoji}</div>
+      
+      {/* Title */}
+      <h6 style={{ fontFamily: "'Clash Display',sans-serif", fontWeight: 700, color: hov ? p.color : "#f1f5f9", marginBottom: 10, fontSize: 17, transition: "color 0.3s ease", letterSpacing: -0.5 }}>{p.title}</h6>
+      
+      {/* Description */}
+      <p style={{ color: hov ? "#94a3b8" : "#64748b", fontSize: 13.5, lineHeight: 1.75, flexGrow: 1, marginBottom: 18, transition: "color 0.3s ease" }}>{p.desc}</p>
+      
+      {/* Tech tags */}
+      <div className="d-flex flex-wrap gap-2">
+        {p.tech.map((t, idx) => (
+          <span key={t} style={{ 
+            padding: "4px 12px", borderRadius: 20, background: `${p.color}12`, color: p.color, 
+            fontSize: 11, fontFamily: "'DM Mono',monospace", border: `1px solid ${p.color}28`,
+            transition: `all 0.3s ease ${idx * 0.05}s`,
+            transform: hov ? "translateY(-2px) scale(1.05)" : "translateY(0) scale(1)",
+            fontWeight: 500, letterSpacing: 0.3,
+          }}>{t}</span>
+        ))}
       </div>
     </div>
   );
@@ -143,26 +188,36 @@ export default function Portfolio() {
   const [err, setErr] = useState("");
   const [filter, setFilter] = useState("All");
 
-  const roleRef = useRef({ idx: 0, ch: 0, del: false });
   const roles = ["Frontend Developer", "React.js Developer", "Next.js Developer", "Angular.js Developer", "UI/UX Enthusiast"];
+  const [roleIdx, setRoleIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Typing effect
   useEffect(() => {
-    const iv = setInterval(() => {
-      const { idx, ch, del } = roleRef.current;
-      const cur = roles[idx];
-      if (!del) {
-        setTyped(cur.slice(0, ch + 1));
-        if (ch + 1 === cur.length) setTimeout(() => { roleRef.current.del = true; }, 1700);
-        else roleRef.current.ch++;
-      } else {
-        setTyped(cur.slice(0, ch - 1));
-        if (ch - 1 === 0) { roleRef.current.del = false; roleRef.current.idx = (idx + 1) % roles.length; roleRef.current.ch = 0; }
-        else roleRef.current.ch--;
-      }
-    }, 70);
-    return () => clearInterval(iv);
-  }, []);
+    let typingTimeout;
+    const currentRole = roles[roleIdx];
+    if (!isDeleting && charIdx < currentRole.length) {
+      typingTimeout = setTimeout(() => {
+        setTyped(currentRole.slice(0, charIdx + 1));
+        setCharIdx(charIdx + 1);
+      }, 70);
+    } else if (!isDeleting && charIdx === currentRole.length) {
+      typingTimeout = setTimeout(() => {
+        setIsDeleting(true);
+      }, 1700);
+    } else if (isDeleting && charIdx > 0) {
+      typingTimeout = setTimeout(() => {
+        setTyped(currentRole.slice(0, charIdx - 1));
+        setCharIdx(charIdx - 1);
+      }, 40);
+    } else if (isDeleting && charIdx === 0) {
+      typingTimeout = setTimeout(() => {
+        setIsDeleting(false);
+        setRoleIdx((roleIdx + 1) % roles.length);
+      }, 400);
+    }
+    return () => clearTimeout(typingTimeout);
+  }, [charIdx, isDeleting, roleIdx, roles]);
 
   // Scroll
   useEffect(() => {
@@ -222,41 +277,157 @@ export default function Portfolio() {
           font-family: 'DM Sans', sans-serif !important;
         }
         * { box-sizing: border-box; }
-        ::selection { background: rgba(124,58,237,0.35); color: #fff; }
-        ::-webkit-scrollbar { width: 4px; }
+        ::selection { background: linear-gradient(135deg,rgba(124,58,237,0.6),rgba(0,212,255,0.6)); color: #fff; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #030712; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(#7c3aed, #00d4ff); border-radius: 2px; }
-        input, textarea { outline: none !important; background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #f1f5f9 !important; border-radius: 10px !important; }
-        input::placeholder, textarea::placeholder { color: #475569 !important; }
-        input:focus, textarea:focus { border-color: #7c3aed !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.15) !important; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #7c3aed, #00d4ff); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #a78bfa, #06b6d4); }
+        input, textarea { outline: none !important; background: rgba(255,255,255,0.04) !important; border: 1.5px solid rgba(255,255,255,0.1) !important; color: #f1f5f9 !important; border-radius: 12px !important; font-family: 'DM Sans',sans-serif !important; transition: all 0.3s !important; }
+        input::placeholder, textarea::placeholder { color: #64748b !important; }
+        input:focus, textarea:focus { background: rgba(255,255,255,0.08) !important; border-color: #7c3aed !important; box-shadow: 0 0 0 3px rgba(124,58,237,0.2) !important; }
         
         @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeUp { 0%{opacity:0;transform:translateY(30px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes fadeInLeft { 0%{opacity:0;transform:translateX(-30px)} 100%{opacity:1;transform:translateX(0)} }
+        @keyframes fadeInRight { 0%{opacity:0;transform:translateX(30px)} 100%{opacity:1;transform:translateX(0)} }
         @keyframes spin { to{transform:rotate(360deg)} }
-        @keyframes glow { 0%,100%{opacity:0.5} 50%{opacity:1} }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes glow { 0%,100%{opacity:0.5;filter:drop-shadow(0 0 8px currentColor)} 50%{opacity:1;filter:drop-shadow(0 0 16px currentColor)} }
+        @keyframes float { 0%,100%{transform:translateY(0px)} 50%{transform:translateY(-16px)} }
         @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
-        @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes slideDown { 0%{opacity:0;transform:translateY(-12px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes bounceIn { 0%{opacity:0;transform:scale(0.95)} 100%{opacity:1;transform:scale(1)} }
 
-        .nav-btn { background: none; border: none; cursor: pointer; font-family: 'DM Mono',monospace; font-size: 12px; padding: 8px 16px; border-radius: 30px; transition: all 0.25s; color: #64748b; }
-        .nav-btn:hover, .nav-btn.active { color: #fff; background: rgba(255,255,255,0.1); }
-        .filter-btn { cursor: pointer; font-family: 'DM Mono',monospace; font-size: 12px; padding: 7px 18px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); color: #475569; transition: all 0.25s; backdrop-filter: blur(8px); }
-        .filter-btn:hover { border-color: rgba(255,255,255,0.2); color: #e2e8f0; }
-        .filter-btn.active { border-color: rgba(124,58,237,0.6); background: rgba(124,58,237,0.15); color: #c4b5fd; }
-        .social-link { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #475569; text-decoration: none; font-size: 13px; font-family: 'DM Mono',monospace; transition: all 0.3s; backdrop-filter: blur(8px); }
-        .social-link:hover { border-color: #00d4ff; color: #00d4ff; transform: translateY(-2px); }
-        .btn-primary-custom { background: linear-gradient(135deg, #7c3aed, #06b6d4); border: none; color: #fff; font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 500; padding: 12px 28px; border-radius: 10px; cursor: pointer; box-shadow: 0 8px 28px rgba(124,58,237,0.35); transition: all 0.3s; }
-        .btn-primary-custom:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(124,58,237,0.5); }
-        .btn-outline-custom { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; font-family: 'DM Mono',monospace; font-size: 13px; padding: 12px 28px; border-radius: 10px; cursor: pointer; backdrop-filter: blur(8px); transition: all 0.3s; }
-        .btn-outline-custom:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.25); color: #fff; transform: translateY(-2px); }
-        .glass-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 20px; backdrop-filter: blur(20px); }
-        .section-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-family: 'DM Mono',monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; }
-        .gradient-text { background: linear-gradient(135deg,#c4b5fd,#67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .contact-info-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 14px; }
-        .contact-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .nav-btn { 
+          background: none; border: none; cursor: pointer; font-family: 'DM Mono',monospace; font-size: 12px; padding: 8px 16px; 
+          border-radius: 30px; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); color: #64748b; position: relative; 
+          font-weight: 500; letter-spacing: 0.5px;
+        }
+        .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .nav-btn.active { color: #c4b5fd; background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3); }
+        
+        .filter-btn { 
+          cursor: pointer; font-family: 'DM Mono',monospace; font-size: 12px; padding: 8px 20px; 
+          border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); 
+          color: #475569; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(8px); 
+          font-weight: 500; letter-spacing: 0.5px;
+        }
+        .filter-btn:hover { 
+          border-color: rgba(255,255,255,0.3); color: #e2e8f0; background: rgba(255,255,255,0.08); 
+          transform: translateY(-3px); box-shadow: 0 8px 16px rgba(255,255,255,0.1);
+        }
+        .filter-btn.active { 
+          border-color: rgba(124,58,237,0.8); background: rgba(124,58,237,0.2); color: #c4b5fd; 
+          box-shadow: 0 0 20px rgba(124,58,237,0.3);
+        }
+        
+        .social-link { 
+          display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 10px; 
+          background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); color: #475569; 
+          text-decoration: none; font-size: 13px; font-family: 'DM Mono',monospace; 
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); backdrop-filter: blur(8px); font-weight: 500;
+        }
+        .social-link:hover { 
+          border-color: #00d4ff; color: #00d4ff; transform: translateY(-4px) scale(1.05); 
+          box-shadow: 0 8px 20px rgba(0,212,255,0.2);
+        }
+        
+        .btn-primary-custom { 
+          background: linear-gradient(135deg, #7c3aed, #06b6d4); border: none; color: #fff; 
+          font-family: 'DM Mono',monospace; font-size: 13px; font-weight: 600; padding: 13px 30px; 
+          border-radius: 12px; cursor: pointer; box-shadow: 0 8px 28px rgba(124,58,237,0.35); 
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden;
+          letter-spacing: 0.5px;
+        }
+        .btn-primary-custom:hover { 
+          transform: translateY(-4px); box-shadow: 0 14px 40px rgba(124,58,237,0.5); 
+          background: linear-gradient(135deg, #8d47e3, #12b5d8);
+        }
+        .btn-primary-custom:active { transform: translateY(-2px); }
+        
+        .btn-outline-custom { 
+          background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.15); color: #94a3b8; 
+          font-family: 'DM Mono',monospace; font-size: 13px; padding: 12px 28px; border-radius: 12px; 
+          cursor: pointer; backdrop-filter: blur(8px); transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); 
+          font-weight: 500; letter-spacing: 0.5px;
+        }
+        .btn-outline-custom:hover { 
+          background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #fff; 
+          transform: translateY(-3px); box-shadow: 0 8px 20px rgba(255,255,255,0.1);
+        }
+        
+        .glass-card { 
+          background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); 
+          border-radius: 20px; backdrop-filter: blur(20px); transition: all 0.35s ease; 
+          box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .glass-card:hover { 
+          background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); 
+          box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .project-card { opacity: 0; }
+        .fade-in-up { animation: fadeUp 0.8s ease both; }
+        .fade-in-left { animation: fadeInLeft 0.8s ease both; }
+        
+        @keyframes emojiHover { 
+          0% { transform: scale(1) rotate(0deg); } 
+          25% { transform: scale(1.1) rotate(2deg); } 
+          50% { transform: scale(1.3) rotate(10deg); } 
+          75% { transform: scale(1.25) rotate(6deg); } 
+          100% { transform: scale(1.2) rotate(8deg); } 
+        }
+        
+        .section-badge { 
+          display: inline-block; padding: 6px 16px; border-radius: 24px; font-family: 'DM Mono',monospace; 
+          font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+          animation: bounceIn 0.6s ease;
+        }
+        
+        .gradient-text { 
+          background: linear-gradient(135deg,#c4b5fd,#67e8f9); 
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; 
+        }
+        
+        .contact-info-item { 
+          display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; 
+          background: rgba(255,255,255,0.03); border: 1.5px solid rgba(255,255,255,0.08); 
+          margin-bottom: 14px; transition: all 0.35s ease;
+        }
+        .contact-info-item:hover { 
+          background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); 
+          transform: translateX(4px);
+        }
+        
+        .contact-icon { 
+          width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; 
+          justify-content: center; font-size: 18px; flex-shrink: 0; 
+          transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .contact-info-item:hover .contact-icon { 
+          transform: scale(1.1) rotate(6deg);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+          .hero-title { font-size: clamp(32px, 5vw, 72px) !important; }
+          .section-title { font-size: clamp(24px, 4vw, 48px) !important; }
+        }
+        
         @media (max-width: 768px) {
-          .hero-title { font-size: 42px !important; }
-          .section-title { font-size: 32px !important; }
+          .hero-title { font-size: 36px !important; }
+          .section-title { font-size: 28px !important; }
+          .filter-btn { padding: 6px 16px; font-size: 11px; }
+          .nav-btn { padding: 6px 12px; font-size: 11px; }
+          .btn-primary-custom { padding: 11px 24px; font-size: 12px; }
+          .btn-outline-custom { padding: 10px 20px; font-size: 12px; }
+        }
+        
+        @media (max-width: 576px) {
+          .hero-title { font-size: 28px !important; }
+          .section-title { font-size: 22px !important; }
+          .social-link { padding: 7px 14px; font-size: 12px; gap: 5px; }
+          .contact-info-item { padding: 12px 14px; gap: 10px; }
         }
       `}</style>
 
@@ -314,8 +485,8 @@ export default function Portfolio() {
         {/* ── HERO ────────────────────────────────────────────────────────── */}
         <section id="home" className="d-flex align-items-center" style={{ minHeight: "100vh", position: "relative", zIndex: 2, paddingTop: 70 }}>
           <div className="container-fluid px-4 px-lg-5">
-            <div className="row">
-              <div className="col-12 col-lg-8 col-xl-7" style={{ animation: "fadeUp 0.9s ease both" }}>
+            <div className="row align-items-center gy-4">
+              <div className="col-12 col-lg-6 col-xl-5" style={{ animation: "fadeUp 0.9s ease both" }}>
 
                 {/* Status badge */}
                 <div className="d-inline-flex align-items-center gap-2 mb-4" style={{ padding: "6px 16px", borderRadius: 30, background: "rgba(0,212,255,0.06)", border: "1px solid rgba(0,212,255,0.2)", backdropFilter: "blur(8px)" }}>
@@ -324,7 +495,7 @@ export default function Portfolio() {
                 </div>
 
                 {/* Name */}
-                <h1 className="hero-title mb-3" style={{ fontFamily: "'Clash Display',sans-serif", fontWeight: 700, fontSize: "clamp(40px,6vw,82px)", lineHeight: 1.05, letterSpacing: -2 }}>
+                <h1 className="hero-title mb-3" style={{ fontFamily: "'Clash Display',sans-serif", fontWeight: 700, fontSize: "clamp(40px,6vw,70px)", lineHeight: 1.05, letterSpacing: -2 }}>
                   <span className="d-block mb-1" style={{ color: "rgba(255,255,255,0.2)", fontSize: "0.5em", letterSpacing: 4, fontFamily: "'DM Mono',monospace", fontWeight: 400 }}>HELLO, I'M</span>
                   <span style={{ background: "linear-gradient(135deg,#fff 0%,#c4b5fd 45%,#67e8f9 100%)", backgroundSize: "200% auto", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", animation: "shimmer 5s linear infinite" }}>Jaymin Chauhan</span>
                 </h1>
@@ -337,7 +508,7 @@ export default function Portfolio() {
 
                 {/* Bio */}
                 <p className="mb-2" style={{ color: "#475569", fontSize: 16, lineHeight: 1.85, maxWidth: 560 }}>
-                  <strong style={{ color: "#94a3b8" }}>1.7 years</strong> professional experience at{" "}
+                  <strong style={{ color: "#94a3b8" }}>1.8 years</strong> professional experience at{" "}
                   <span style={{ color: "#c4b5fd", fontFamily: "'DM Mono',monospace" }}>Ivotiontech</span>.
                   {" "}I build fast, pixel-perfect web apps using React, Next.js & Angular.
                 </p>
@@ -360,6 +531,73 @@ export default function Portfolio() {
                   ))}
                 </div>
               </div>
+
+              {/* Profile Image */}
+              <div className="col-12 col-lg-6 col-xl-7 d-flex justify-content-center align-items-center" style={{ animation: "fadeUp 0.9s ease both", animationDelay: "0.1s" }}>
+                <div style={{ position: "relative", width: "clamp(250px, 80vw, 380px)", aspectRatio: "1" }}>
+                  {/* Animated rings */}
+                  <div style={{ position: "absolute", inset: -20, borderRadius: "50%", border: "2px solid rgba(124,58,237,0.3)", animation: "spin 20s linear infinite" }} />
+                  <div style={{ position: "absolute", inset: -40, borderRadius: "50%", border: "1px dashed rgba(0,212,255,0.2)", animation: "spin 14s linear infinite reverse" }} />
+                  
+                  {/* Profile Image Container */}
+                  <div style={{
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    background: "radial-gradient(circle at 40% 40%, rgba(124,58,237,0.2), rgba(6,182,212,0.1), rgba(3,7,18,0.8))",
+                    border: "2px solid rgba(255,255,255,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    backdropFilter: "blur(20px)",
+                    boxShadow: "0 25px 50px rgba(124,58,237,0.2)",
+                  }}>
+                    {/* Profile Image */}
+                    <img 
+                      src="/assets/my-img-2.jpg" 
+                      alt="Jaymin Chauhan" 
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        objectPosition: "center",
+                        borderRadius: "28px",
+                        display: "block",
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        e.target.parentElement.innerHTML = '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 120px; animation: float 6s ease-in-out infinite;">👨‍💻</div>';
+                      }}
+                    />
+                  </div>
+
+                  {/* Floating badges */}
+                  {/* {[
+                    { text: "React Expert", pos: { top: "-15px", right: "-15px" }, color: "#61dafb" },
+                    { text: "UI/UX Focus", pos: { bottom: "-15px", left: "-15px" }, color: "#00d4ff" },
+                    { text: "Next.js Pro", pos: { bottom: "-15px", right: "-15px" }, color: "#a78bfa" },
+                  ].map(({ text, pos, color }) => (
+                    <div key={text} style={{
+                      position: "absolute",
+                      ...pos,
+                      background: `${color}12`,
+                      border: `1.5px solid ${color}44`,
+                      borderRadius: 12,
+                      padding: "10px 16px",
+                      fontFamily: "'DM Mono',monospace",
+                      fontSize: 11,
+                      color: color,
+                      whiteSpace: "nowrap",
+                      backdropFilter: "blur(12px)",
+                      animation: "float 6s ease-in-out infinite",
+                    }}>
+                      {text}
+                    </div>
+                  ))} */}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -380,7 +618,7 @@ export default function Portfolio() {
                   I'm <strong style={{ color: "#e2e8f0" }}>Jaymin Chauhan</strong>, a frontend developer from Ahmedabad, Gujarat, specialising in crafting responsive, high-performance interfaces with React, Next.js and Angular.
                 </p>
                 <p className="mb-3" style={{ color: "#475569", lineHeight: 1.9, fontSize: 15 }}>
-                  Started with a <strong style={{ color: "#67e8f9" }}>9-month internship at Think Tank</strong>, then joined Ivotiontech for a 4-month internship before growing into <strong style={{ color: "#67e8f9" }}>1.7 years of full-time work</strong> — shipping 10 production projects along the way.
+                  Started with a <strong style={{ color: "#67e8f9" }}>9-month internship at Think Tank</strong>, then joined Ivotiontech for a 4-month internship before growing into <strong style={{ color: "#67e8f9" }}>1.8 years of full-time work</strong> — shipping 10 production projects along the way.
                 </p>
                 <p className="mb-4" style={{ color: "#475569", lineHeight: 1.9, fontSize: 15 }}>
                   I care deeply about clean code, micro-interactions, and experiences that delight users at every pixel.
@@ -388,7 +626,7 @@ export default function Portfolio() {
 
                 {/* Stats */}
                 <div className="row g-3">
-                  {[["10+","Projects","🎯"],["1.7yr","Ivotiontech","🏢"],["9mo","Think Tank","🧠"],["∞","Passion","🔥"]].map(([v, l, ic]) => (
+                  {[["10+","Projects","🎯"],["1.8yr","Ivotiontech","🏢"],["9mo","Think Tank","🧠"],["∞","Passion","🔥"]].map(([v, l, ic]) => (
                     <div key={l} className="col-6 col-sm-3">
                       <div className="glass-card text-center p-3">
                         <div style={{ fontSize: 22, marginBottom: 6 }}>{ic}</div>
@@ -432,7 +670,7 @@ export default function Portfolio() {
             </div>
             <div className="row g-4">
               {SKILLS.map((s, i) => (
-                <div key={s.name} className="col-12 col-md-6">
+                <div key={s.name} className="col-12 col-md-6 col-lg-4">
                   <SkillBar {...s} delay={i * 0.06} />
                 </div>
               ))}
@@ -494,7 +732,6 @@ export default function Portfolio() {
                   {[
                     { icon: "📧", label: "Email",     val: "jayminchahun6667@gmail.com", href: "mailto:jayminchahun6667@gmail.com", color: "#67e8f9" },
                     { icon: "📍", label: "Location",  val: "Ahmedabad, Gujarat, India",  href: null, color: "#c4b5fd" },
-                    { icon: "🏢", label: "Company",   val: "Ivotiontech",                href: null, color: "#fb923c" },
                     { icon: "⏰", label: "Response",  val: "Within 24 hours",            href: null, color: "#4ade80" },
                   ].map(({ icon, label, val, href, color }) => (
                     <div key={label} className="contact-info-item">
@@ -562,16 +799,16 @@ export default function Portfolio() {
         <footer style={{ position: "relative", zIndex: 2, background: "rgba(3,7,18,0.8)", backdropFilter: "blur(20px)", borderTop: "1px solid rgba(255,255,255,0.06)", width: "100%" }}>
           <div className="container-fluid px-4 px-lg-5 py-4">
             <div className="row align-items-center gy-3">
-              <div className="col-12 col-md-4 d-flex align-items-center gap-2">
+              <div className="col-12 col-md-4 d-flex align-items-center gap-2 justify-content-center justify-content-md-start">
                 <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,#7c3aed,#06b6d4)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Clash Display',sans-serif", fontWeight: 700, fontSize: 13, color: "#fff" }}>JC</div>
                 <span style={{ fontFamily: "'DM Mono',monospace", fontSize: 13, color: "#334155" }}>Jaymin Chauhan</span>
               </div>
-              <div className="col-12 col-md-4 text-center">
+              <div className="col-12 col-md-4 text-center justify-content-center justify-content-md-center">
                 <p style={{ color: "#1e293b", fontFamily: "'DM Mono',monospace", fontSize: 12, margin: 0 }}>
                   Crafted with <span style={{ color: "#f87171" }}>♥</span> by <span style={{ color: "#c4b5fd" }}>Jaymin Chauhan</span> · {new Date().getFullYear()}
                 </p>
               </div>
-              <div className="col-12 col-md-4 d-flex justify-content-md-end gap-3">
+              <div className="col-12 col-md-4 d-flex justify-content-md-end justify-content-center gap-3">
                 {SOCIALS.map(s => (
                   <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ color: "#1e293b", fontSize: 18, textDecoration: "none", transition: "all 0.3s" }}
                     onMouseEnter={e => { e.currentTarget.style.color = "#c4b5fd"; e.currentTarget.style.transform = "translateY(-2px)"; }}
