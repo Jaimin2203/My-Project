@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import myImg from './assets/my-img-2.jpg';
+import myImg from './assets/my-img.png';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const NAV = ["Home","About","Skills","Projects","Contact"];
